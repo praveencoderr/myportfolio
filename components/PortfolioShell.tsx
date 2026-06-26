@@ -18,6 +18,7 @@ const PortfolioShell = ({ content }: { content: PortfolioContent }) => {
           section={content.sections.hero}
           settings={content.settings}
           skills={content.skills}
+          metrics={content.metrics}
         />
         <About
           section={content.sections.about}

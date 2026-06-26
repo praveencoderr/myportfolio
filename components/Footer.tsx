@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ArrowUpRight, Download, Mail } from "lucide-react";
 
 import type { Profile, SectionContent, SettingsMap } from "@/lib/cms";
+import { Reveal, Stagger, StaggerItem } from "./ui/Motion";
 
 const Footer = ({
   profile,
@@ -35,7 +36,8 @@ const Footer = ({
         />
       </div>
 
-      <div className="rounded-lg border border-white/10 bg-[#05071a]/90 p-6 text-center backdrop-blur md:p-10">
+      <Reveal className="rounded-lg border border-white/10 bg-[#05071a]/90 p-6 text-center shadow-2xl shadow-black/30 backdrop-blur md:p-10">
+        <div className="mx-auto mb-6 h-px max-w-xl bg-gradient-to-r from-transparent via-cyan-200/60 to-transparent" />
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-200">
           {section?.eyebrow}
         </p>
@@ -69,35 +71,36 @@ const Footer = ({
             </a>
           )}
         </div>
-      </div>
+      </Reveal>
 
-      <div className="mt-10 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-6 md:flex-row">
+      <Reveal className="mt-10 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-6 md:flex-row">
         <p className="text-sm text-white-200">
           Copyright © {new Date().getFullYear()} {profile.full_name}
         </p>
 
-        <div className="flex items-center gap-3">
+        <Stagger className="flex items-center gap-3">
           {socialMedia.map((info) => (
-            <a
-              key={info.id}
-              href={info.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={info.name}
-              className="group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
-            >
-              <Image
-                src={info.img}
-                alt=""
-                width={20}
-                height={20}
-                className="h-5 w-5"
-              />
-              <ArrowUpRight className="absolute h-3 w-3 translate-x-3 -translate-y-3 text-cyan-100 opacity-0 transition group-hover:opacity-100" />
-            </a>
+            <StaggerItem key={info.id}>
+              <a
+                href={info.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={info.name}
+                className="group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+              >
+                <Image
+                  src={info.img}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5"
+                />
+                <ArrowUpRight className="absolute h-3 w-3 translate-x-3 -translate-y-3 text-cyan-100 opacity-0 transition group-hover:opacity-100" />
+              </a>
+            </StaggerItem>
           ))}
-        </div>
-      </div>
+        </Stagger>
+      </Reveal>
     </footer>
   );
 };
