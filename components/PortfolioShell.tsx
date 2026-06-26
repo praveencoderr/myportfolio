@@ -26,14 +26,14 @@ const PortfolioShell = ({ content }: { content: PortfolioContent }) => {
           metrics={content.metrics}
           skills={content.skills}
         />
-        <RecentProjects
-          section={content.sections.projects}
-          projects={content.projects}
-        />
         <Experience
           section={content.sections.experience}
           experience={content.experience}
           education={content.education}
+        />
+        <RecentProjects
+          section={content.sections.projects}
+          projects={content.projects}
         />
         <Achievements
           section={content.sections.achievements}
