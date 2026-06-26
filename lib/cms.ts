@@ -24,6 +24,7 @@ export type Profile = {
   github_url: string | null;
   linkedin_url: string | null;
   leetcode_url: string | null;
+  gfg_url: string | null;
   summary: string | null;
 };
 
@@ -300,7 +301,7 @@ export async function getPortfolioContent(
     ] = await Promise.all([
       readTable<Profile>(
         "profile",
-        `select=full_name,role,location,email,phone,portfolio_url,github_url,linkedin_url,leetcode_url,summary&${portfolioFilter}&published=eq.true&limit=1`
+        `select=full_name,role,location,email,phone,portfolio_url,github_url,linkedin_url,leetcode_url,gfg_url,summary&${portfolioFilter}&published=eq.true&limit=1`
       ),
       readTable<SectionContent>(
         "sections",

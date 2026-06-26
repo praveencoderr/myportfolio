@@ -4,6 +4,18 @@ import { ArrowUpRight, Download, Mail } from "lucide-react";
 import type { Profile, SectionContent, SettingsMap } from "@/lib/cms";
 import { Reveal, Stagger, StaggerItem } from "./ui/Motion";
 
+type SocialLink = {
+  id: string;
+  name: string;
+  img?: string;
+  badge?: string;
+  link: string;
+};
+
+type MaybeSocialLink = Omit<SocialLink, "link"> & {
+  link: string | null;
+};
+
 const Footer = ({
   profile,
   section,
@@ -13,7 +25,7 @@ const Footer = ({
   section?: SectionContent;
   settings: SettingsMap;
 }) => {
-  const socialMedia = [
+  const socialItems: MaybeSocialLink[] = [
     { id: "github", name: "GitHub", img: "/git.svg", link: profile.github_url },
     {
       id: "linkedin",
@@ -21,8 +33,21 @@ const Footer = ({
       img: "/link.svg",
       link: profile.linkedin_url,
     },
-  ].filter((item): item is { id: string; name: string; img: string; link: string } =>
-    Boolean(item.link)
+    {
+      id: "leetcode",
+      name: "LeetCode",
+      badge: "LC",
+      link: profile.leetcode_url,
+    },
+    {
+      id: "gfg",
+      name: "GeeksforGeeks",
+      badge: "GFG",
+      link: profile.gfg_url,
+    },
+  ];
+  const socialMedia = socialItems.filter(
+    (item): item is SocialLink => Boolean(item.link)
   );
 
   return (
@@ -88,13 +113,19 @@ const Footer = ({
                 aria-label={info.name}
                 className="group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
               >
-                <Image
-                  src={info.img}
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="h-5 w-5"
-                />
+                {info.img ? (
+                  <Image
+                    src={info.img}
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="h-5 w-5"
+                  />
+                ) : (
+                  <span className="text-[10px] font-bold tracking-normal text-white">
+                    {info.badge}
+                  </span>
+                )}
                 <ArrowUpRight className="absolute h-3 w-3 translate-x-3 -translate-y-3 text-cyan-100 opacity-0 transition group-hover:opacity-100" />
               </a>
             </StaggerItem>

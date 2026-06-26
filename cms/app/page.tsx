@@ -807,6 +807,7 @@ export default function CmsPage() {
                       "github_url",
                       "linkedin_url",
                       "leetcode_url",
+                      "gfg_url",
                     ].map((field) => (
                       <Field
                         key={field}

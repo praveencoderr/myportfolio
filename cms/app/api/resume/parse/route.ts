@@ -142,8 +142,10 @@ function extractProfile(lines: string[], text: string) {
   const github = urls.find((url) => /github/i.test(url)) ?? "";
   const linkedin = urls.find((url) => /linkedin/i.test(url)) ?? "";
   const leetcode = urls.find((url) => /leetcode/i.test(url)) ?? "";
+  const gfg =
+    urls.find((url) => /(geeksforgeeks|gfg)/i.test(url)) ?? "";
   const portfolio =
-    urls.find((url) => !/(github|linkedin|leetcode)/i.test(url)) ?? "";
+    urls.find((url) => !/(github|linkedin|leetcode|geeksforgeeks|gfg)/i.test(url)) ?? "";
   const name =
     lines.find(
       (line) =>
@@ -170,6 +172,7 @@ function extractProfile(lines: string[], text: string) {
     github_url: github,
     linkedin_url: linkedin,
     leetcode_url: leetcode,
+    gfg_url: gfg,
     summary,
     published: true,
   };
@@ -400,6 +403,7 @@ function resumeSchema() {
           github_url: { type: "string" },
           linkedin_url: { type: "string" },
           leetcode_url: { type: "string" },
+          gfg_url: { type: "string" },
           summary: { type: "string" },
           published: { type: "boolean" },
         },
@@ -413,6 +417,7 @@ function resumeSchema() {
           "github_url",
           "linkedin_url",
           "leetcode_url",
+          "gfg_url",
           "summary",
           "published",
         ],

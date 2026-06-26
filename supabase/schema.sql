@@ -102,6 +102,7 @@ create table if not exists public.profile (
   github_url text,
   linkedin_url text,
   leetcode_url text,
+  gfg_url text,
   summary text,
   published boolean not null default true,
   created_at timestamptz not null default now(),
@@ -228,6 +229,7 @@ alter table public.experience add column if not exists portfolio_id uuid default
 alter table public.projects add column if not exists portfolio_id uuid default '00000000-0000-0000-0000-000000000001';
 alter table public.achievements add column if not exists portfolio_id uuid default '00000000-0000-0000-0000-000000000001';
 alter table public.education add column if not exists portfolio_id uuid default '00000000-0000-0000-0000-000000000001';
+alter table public.profile add column if not exists gfg_url text;
 
 alter table public.profile alter column portfolio_id set not null;
 alter table public.sections alter column portfolio_id set not null;

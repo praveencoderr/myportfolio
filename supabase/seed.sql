@@ -35,6 +35,7 @@ insert into public.profile (
   github_url,
   linkedin_url,
   leetcode_url,
+  gfg_url,
   summary,
   published
 ) values (
@@ -49,6 +50,7 @@ insert into public.profile (
   'https://github.com/praveencoderr',
   'https://www.linkedin.com/in/praveen-gupta-45708b183/',
   'https://leetcode.com/u/Praveen219/',
+  'https://www.geeksforgeeks.org/profile/praveenguptacgc',
   'Full Stack Developer with nearly 3 years of professional experience building scalable React, Next.js, Node.js, and AI-powered product systems.',
   true
 ) on conflict (portfolio_id) do update set
@@ -62,6 +64,7 @@ insert into public.profile (
   github_url = excluded.github_url,
   linkedin_url = excluded.linkedin_url,
   leetcode_url = excluded.leetcode_url,
+  gfg_url = excluded.gfg_url,
   summary = excluded.summary,
   published = excluded.published;
 
@@ -345,14 +348,14 @@ values
   ),
   (
     '00000000-0000-0000-0000-000000000001',
-    'Namma Store',
-    'Personal Project',
-    'A convenient platform to securely store luggage with flexible plans for travelers, focused on safety, affordability, and ease of booking.',
+    'Project Kisan - Google Agentic AI Hackathon',
+    'Agentic AI Hackathon Project',
+    'Agentic agriculture platform combining a Next.js web app, Android companion app, and FastAPI AI agents to help farmers with crop planning, farm management, and agricultural insights.',
     '/p1.svg',
-    array['/re.svg', '/tail.svg', '/ts.svg', '/fm.svg'],
-    array['React', 'Tailwind', 'TypeScript', 'Framer Motion'],
-    'https://nammastore.vercel.app/',
+    array['/next.svg', '/ts.svg', '/tail.svg', '/cloud.svg'],
+    array['Next.js', 'TypeScript', 'Tailwind CSS', 'FastAPI', 'Android', 'Kotlin', 'Agentic AI'],
     null,
+    'https://github.com/praveencoderr/Google-Agentic-Ai-Hackathon',
     null,
     false,
     4,
@@ -360,32 +363,17 @@ values
   ),
   (
     '00000000-0000-0000-0000-000000000001',
-    'Blog App',
-    'Personal Project',
-    'A dynamic platform for creating and sharing blogs with a user-friendly interface and content management features.',
+    'DocuFind AI - DOC_SCAN',
+    'AI Document Search App',
+    'React Native and Expo document finder that uses natural-language search, voice search, OCR, ML Kit, SQLite indexing, and rule-based classification to locate documents and photos quickly.',
     '/b1.svg',
-    array['/next.svg', '/tail.svg', '/ts.svg', '/stream.svg'],
-    array['Next.js', 'Tailwind', 'TypeScript', 'Content'],
+    array['/re.svg', '/ts.svg', '/app.svg', '/cloud.svg'],
+    array['React Native', 'Expo', 'TypeScript', 'SQLite', 'Google ML Kit', 'OCR', 'Voice Search'],
     null,
-    'https://github.com/praveen202105/mern-blog-app',
+    'https://github.com/praveencoderr/DOC_SCAN',
     null,
     false,
     5,
-    true
-  ),
-  (
-    '00000000-0000-0000-0000-000000000001',
-    'YouTube Clone',
-    'Personal Project',
-    'A responsive media interface inspired by YouTube with modern frontend patterns.',
-    '/p2.svg',
-    array['/re.svg', '/tail.svg', '/ts.svg'],
-    array['React', 'Tailwind', 'TypeScript', 'Media UI'],
-    'https://praveenyoutube.netlify.app/',
-    null,
-    null,
-    false,
-    6,
     true
   );
 

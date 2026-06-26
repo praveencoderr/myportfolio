@@ -1,6 +1,16 @@
-import { ArrowUpRight, Award, CheckCircle2, Trophy } from "lucide-react";
+import {
+  ArrowUpRight,
+  Award,
+  CheckCircle2,
+  Code2,
+  ExternalLink,
+  Github,
+  Linkedin,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
 
-import type { Achievement, SectionContent } from "@/lib/cms";
+import type { Achievement, Profile, SectionContent } from "@/lib/cms";
 import { MotionCard, Reveal, Stagger, StaggerItem } from "./ui/Motion";
 
 const highlights = [
@@ -12,12 +22,48 @@ const highlights = [
 
 const Achievements = ({
   section,
+  profile,
   achievements,
 }: {
   section?: SectionContent;
+  profile: Profile;
   achievements: Achievement[];
 }) => {
-  if (achievements.length === 0) {
+  const codingLinks = [
+    {
+      label: "LeetCode",
+      value: "900+ solved",
+      href: profile.leetcode_url,
+      icon: Code2,
+    },
+    {
+      label: "GeeksforGeeks",
+      value: "DSA profile",
+      href: profile.gfg_url,
+      icon: ExternalLink,
+    },
+    {
+      label: "GitHub",
+      value: "Active projects",
+      href: profile.github_url,
+      icon: Github,
+    },
+    {
+      label: "LinkedIn",
+      value: "Work updates",
+      href: profile.linkedin_url,
+      icon: Linkedin,
+    },
+  ].filter(
+    (item): item is {
+      label: string;
+      value: string;
+      href: string;
+      icon: LucideIcon;
+    } => Boolean(item.href)
+  );
+
+  if (achievements.length === 0 && codingLinks.length === 0) {
     return null;
   }
 
@@ -37,6 +83,41 @@ const Achievements = ({
             "Certifications, coding milestones, and proof points that support the engineering story."}
         </p>
       </Reveal>
+
+      {codingLinks.length > 0 && (
+        <Stagger className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {codingLinks.map((link) => {
+            const Icon = link.icon;
+
+            return (
+              <StaggerItem key={link.label}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex h-full min-w-0 items-center justify-between gap-4 rounded-lg border border-white/10 bg-[#05071a]/80 p-4 transition hover:-translate-y-0.5 hover:border-cyan-300/35 hover:bg-cyan-300/[0.07]"
+                  aria-label={`${link.label} profile`}
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-white">
+                        {link.label}
+                      </span>
+                      <span className="mt-1 block truncate text-xs text-white-200">
+                        {link.value}
+                      </span>
+                    </span>
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-white-200 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cyan-100" />
+                </a>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
         <Reveal className="rounded-lg border border-white/10 bg-gradient-to-br from-violet-300/[0.12] via-white/[0.04] to-cyan-300/[0.08] p-6 shadow-xl shadow-black/20">

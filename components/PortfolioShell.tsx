@@ -37,6 +37,7 @@ const PortfolioShell = ({ content }: { content: PortfolioContent }) => {
         />
         <Achievements
           section={content.sections.achievements}
+          profile={content.profile}
           achievements={content.achievements}
         />
         <Approach
