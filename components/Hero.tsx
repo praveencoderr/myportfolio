@@ -1,17 +1,29 @@
-import { FaLocationArrow } from "react-icons/fa6";
+import { ArrowDownRight, Download, MessageCircle } from "lucide-react";
 
-import MagicButton from "./MagicButton";
 import { Spotlight } from "./ui/Spotlight";
-import { TextGenerateEffect } from "./ui/TextGenerateEffect";
+import type { Profile, SectionContent, SettingsMap, Skill } from "@/lib/cms";
 
-const Hero = () => {
+const featuredSkillLimit = 8;
+
+const Hero = ({
+  profile,
+  section,
+  settings,
+  skills,
+}: {
+  profile: Profile;
+  section?: SectionContent;
+  settings: SettingsMap;
+  skills: Skill[];
+}) => {
+  const featuredSkills = skills
+    .filter((skill) => skill.featured)
+    .slice(0, featuredSkillLimit);
+  const resumeUrl = settings.resume_url;
+
   return (
-    <div className="pb-20 pt-36">
-      {/**
-       *  UI: Spotlights
-       *  Link: https://ui.aceternity.com/components/spotlight
-       */}
-      <div>
+    <section className="relative flex min-h-[86vh] w-full items-center overflow-hidden pb-12 pt-28 md:min-h-[88vh] md:pt-36">
+      <div className="pointer-events-none absolute inset-0 -z-10 hidden md:block">
         <Spotlight
           className="-top-40 -left-10 md:-left-32 md:-top-20 h-screen"
           fill="white"
@@ -23,49 +35,71 @@ const Hero = () => {
         <Spotlight className="left-80 top-28 h-[80vh] w-[50vw]" fill="blue" />
       </div>
 
-      {/**
-       *  UI: grid
-       *  change bg color to bg-black-100 and reduce grid color from
-       *  0.2 to 0.03
-       */}
-      <div
-        className="h-screen w-full dark:bg-black-100 bg-white dark:bg-grid-white/[0.03] bg-grid-black-100/[0.2]
-       absolute top-0 left-0 flex items-center justify-center"
-      >
-        {/* Radial gradient for the container to give a faded look */}
-        <div
-          // chnage the bg to bg-black-100, so it matches the bg color and will blend in
-          className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black-100
-         bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"
-        />
+      <div className="absolute inset-x-1/2 top-0 -z-20 h-full w-screen -translate-x-1/2 bg-grid-white/[0.035]">
+        <div className="absolute inset-0 bg-black-100 [mask-image:radial-gradient(ellipse_at_center,transparent_18%,black_76%)]" />
       </div>
 
-      <div className="flex justify-center relative my-20 z-10">
-        <div className="max-w-[89vw] md:max-w-2xl lg:max-w-[60vw] flex flex-col items-center justify-center">
-          {/**
-           *  Link: https://ui.aceternity.com/components/text-generate-effect
-           *
-           *  change md:text-6xl, add more responsive code
-           */}
-          <TextGenerateEffect
-            words="Transforming Concepts into Seamless User Experiences"
-            className="text-center mt-8 text-[40px] md:text-5xl lg:text-6xl"
-          />
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-[calc(100vw-2rem)] flex-col items-start text-left sm:max-w-5xl sm:items-center sm:text-center">
+        <p className="max-w-full rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100 sm:px-4 sm:text-xs sm:tracking-[0.24em] md:text-sm">
+          {section?.eyebrow ?? profile.role}
+        </p>
 
-          <p className="text-center md:tracking-wider mb-4 text-sm md:text-lg lg:text-2xl">
-            Hi I&apos;m Praveen, a Next.js Developer based in Bangalore.
-          </p>
+        <h1 className="mt-7 w-full max-w-[19rem] text-4xl font-bold leading-tight text-white [text-wrap:balance] sm:max-w-4xl md:text-6xl lg:text-7xl">
+          {profile.full_name}
+        </h1>
 
-          <a href="#projects">
-            <MagicButton
-              title="Show my work"
-              icon={<FaLocationArrow />}
-              position="right"
-            />
+        <p className="mt-4 w-full max-w-[19rem] text-2xl font-semibold leading-tight text-white [text-wrap:balance] sm:max-w-3xl md:text-4xl">
+          {section?.title ?? profile.role}
+        </p>
+
+        <p className="mt-6 w-full max-w-[19rem] text-base leading-7 text-white-200 sm:max-w-2xl md:text-lg">
+          {section?.description ?? profile.summary}
+        </p>
+
+        <div className="mt-9 flex w-full max-w-[19rem] flex-col items-stretch justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center">
+          <a
+            href="#projects"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 text-sm font-semibold text-black-100 transition hover:-translate-y-0.5 hover:bg-cyan-100"
+          >
+            View projects
+            <ArrowDownRight className="h-4 w-4" />
           </a>
+
+          {resumeUrl && (
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-6 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.08]"
+            >
+              Download resume
+              <Download className="h-4 w-4" />
+            </a>
+          )}
+
+          {profile.email && (
+            <a
+              href={`mailto:${profile.email}`}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-6 text-sm font-semibold text-cyan-100 transition hover:-translate-y-0.5 hover:bg-cyan-300/15"
+            >
+              Contact
+              <MessageCircle className="h-4 w-4" />
+            </a>
+          )}
+        </div>
+
+        <div className="mt-10 flex w-full max-w-[19rem] flex-wrap justify-start gap-2 text-xs text-white-200 sm:max-w-none sm:justify-center md:text-sm">
+          {featuredSkills.map((skill) => (
+            <span
+              key={skill.id}
+              className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2"
+            >
+              {skill.name}
+            </span>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

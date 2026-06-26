@@ -1,57 +1,150 @@
-"use client";
+import Image from "next/image";
+import { ArrowUpRight, Github, PlayCircle, type LucideIcon } from "lucide-react";
 
-import { FaLocationArrow } from "react-icons/fa6";
-import { projects } from "@/data";
+import type { Project, SectionContent } from "@/lib/cms";
 
-const RecentProjects = () => {
+type ProjectLink = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+const RecentProjects = ({
+  section,
+  projects,
+}: {
+  section?: SectionContent;
+  projects: Project[];
+}) => {
   return (
-    <div className="py-20" id="projects">
-      <h1 className="heading text-center text-3xl font-bold mb-12">
-        A small selection of{" "}
-        <span className="text-purple">my recent projects</span>
-      </h1>
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-12 px-6">
-        {projects.map((item) => (
-          <div
-            key={item.id}
-            className="relative group rounded-xl overflow-hidden shadow-lg bg-[#13162D] hover:shadow-2xl transition-shadow duration-300"
-          >
-            {/* Project Image */}
-            <div className="relative">
-              <img
-                src={item.img}
-                alt="cover"
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
-            </div>
-
-            {/* Project Details */}
-            <div className="absolute bg-black-100 inset-0 flex flex-col items-center justify-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-6">
-              <h2 className="text-white text-2xl font-bold mb-4">
-                {item.title}
-              </h2>
-              <p className="text-gray-300 text-sm mb-6 line-clamp-3">
-                {item.des}
-              </p>
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-purple text-lg font-semibold hover:underline"
-              >
-                View Live Site <FaLocationArrow />
-              </a>
-            </div>
-
-            {/* Static Title */}
-            <h2 className="absolute bottom-4 left-4 text-white text-lg font-semibold z-10 group-hover:opacity-0 transition-opacity duration-300">
-              {item.title}
-            </h2>
-          </div>
-        ))}
+    <section className="scroll-mt-28 py-16 md:py-24" id="projects">
+      <div className="mb-10 flex flex-col gap-4 md:mb-14 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-200">
+            {section?.eyebrow}
+          </p>
+          <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-white md:text-5xl">
+            {section?.title}
+          </h2>
+        </div>
+        <p className="max-w-md text-sm leading-6 text-white-200 md:text-right">
+          {section?.description}
+        </p>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {projects.map((item) => {
+          const links = [
+            {
+              label: "Live",
+              href: item.live_url,
+              icon: ArrowUpRight,
+            },
+            {
+              label: "Code",
+              href: item.code_url,
+              icon: Github,
+            },
+            {
+              label: "Demo",
+              href: item.case_study_url,
+              icon: PlayCircle,
+            },
+          ].filter((link): link is ProjectLink => Boolean(link.href));
+
+          return (
+            <article
+              key={item.id}
+              className="group flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-[#05071a] transition duration-200 hover:-translate-y-1 hover:border-violet-300/40 hover:bg-white/[0.045]"
+            >
+              <div className="relative h-48 overflow-hidden bg-[#090d2a]">
+                {item.image && (
+                  <Image
+                    src={item.image}
+                    alt={`${item.title} project preview`}
+                    fill
+                    className="object-cover transition duration-300 group-hover:scale-105"
+                    sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#05071a] via-transparent to-transparent" />
+                {item.featured && (
+                  <span className="absolute left-4 top-4 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">
+                    Featured
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-xl font-semibold leading-tight text-white">
+                    {item.title}
+                  </h3>
+                  <div className="flex -space-x-2">
+                    {item.icon_list.slice(0, 4).map((icon) => (
+                      <span
+                        key={icon}
+                        className="relative flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black-100"
+                      >
+                        <Image
+                          src={icon}
+                          alt=""
+                          width={18}
+                          height={18}
+                          className="h-4 w-4 object-contain"
+                        />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {item.subtitle && (
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                    {item.subtitle}
+                  </p>
+                )}
+
+                <p className="mt-4 flex-1 text-sm leading-6 text-white-200">
+                  {item.description}
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {item.tech.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white-200"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                {links.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    {links.map((link) => {
+                      const Icon = link.icon;
+
+                      return (
+                        <a
+                          key={link.label}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-semibold text-white transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100"
+                        >
+                          {link.label}
+                          <Icon className="h-4 w-4" />
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 };
 

@@ -1,93 +1,62 @@
-"use client";
-
-import { navItems } from "@/data";
-
 import Hero from "@/components/Hero";
-// import Grid from "@/components/Grid";
+import About from "@/components/About";
+import CmsUnavailable from "@/components/CmsUnavailable";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Footer from "@/components/Footer";
 import Approach from "@/components/Approach";
 import Experience from "@/components/Experience";
 import RecentProjects from "@/components/RecentProjects";
 import { FloatingNav } from "@/components/ui/FloatingNavbar";
-import { useEffect, useState } from "react";
+import { getPortfolioContent } from "@/lib/cms";
 
-const Home = () => {
-  const [projects, setProjects] = useState(0);
-  const [leetcode, setLeetcode] = useState(0);
-  const [experience, setExperience] = useState(0);
+const Home = async () => {
+  const result = await getPortfolioContent();
 
-  useEffect(() => {
-    // Simulate counter animation
-    const interval = setInterval(() => {
-      setProjects((prev) => (prev < 20 ? prev + 1 : prev));
-      setLeetcode((prev) => (prev < 1000 ? prev + 50 : prev));
-      setExperience((prev) => (prev < 2 ? prev + 0.1 : prev));
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  function StatCard({
-    label,
-    count,
-    link,
-  }: {
-    label: string;
-    count: number;
-    link?: string;
-  }) {
-    const cardContent = (
-      <div className="flex flex-col items-center p-4 bg-white bg-opacity-10 rounded-lg shadow-md">
-        <div className="text-2xl font-bold">{Math.ceil(count)}+</div>
-        <div className="text-sm font-medium opacity-80">{label}</div>
-      </div>
-    );
-
-    return link ? (
-      <a
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="cursor-pointer"
-      >
-        {cardContent}
-      </a>
-    ) : (
-      cardContent
-    );
+  if (result.status !== "ready") {
+    return <CmsUnavailable message={result.message} />;
   }
-  return (
-    <main className="relative bg-black-100 flex justify-center items-center flex-col overflow-hidden mx-auto sm:px-10 px-5">
-      <div className="max-w-7xl w-full">
-        <FloatingNav navItems={navItems} />
-        <Hero />
-        <div className="p-6 border-4 border-white bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow-xl">
-          <div className="flex justify-between items-center gap-6">
-            <StatCard
-              label="Projects"
-              count={projects}
-              link="https://github.com/praveen202105"
-            />
-            <StatCard
-              label="Leetcode"
-              count={leetcode}
-              link="https://leetcode.com/u/Praveen219/"
-            />
-            <StatCard
-              label="Experience (Years)"
-              count={parseFloat(experience.toFixed(1))}
-              link="https://www.linkedin.com/in/praveen-gupta-45708b183/"
-            />
-          </div>
-        </div>
-        {/* <Grid /> */}
 
-        <RecentProjects />
-        {/* <Clients /> */}
-        <Experience />
-        <Approach />
-        <Footer />
+  const { content } = result;
+
+  return (
+    <main className="relative mx-auto flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-black-100 px-4 text-white sm:px-6 lg:px-10">
+      <div className="w-full min-w-0 max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] lg:max-w-7xl">
+        <FloatingNav navItems={content.navItems} />
+        <Hero
+          profile={content.profile}
+          section={content.sections.hero}
+          settings={content.settings}
+          skills={content.skills}
+        />
+        <About
+          section={content.sections.about}
+          metrics={content.metrics}
+          skills={content.skills}
+        />
+        <RecentProjects
+          section={content.sections.projects}
+          projects={content.projects}
+        />
+        <Experience
+          section={content.sections.experience}
+          experience={content.experience}
+          achievements={content.achievements}
+          education={content.education}
+        />
+        <Approach
+          section={content.sections.approach}
+          steps={content.settings.build_steps ?? []}
+        />
+        <Footer
+          profile={content.profile}
+          section={content.sections.contact}
+          settings={content.settings}
+        />
       </div>
+      <FloatingWhatsApp
+        phone={content.settings.whatsapp_phone}
+        message={content.settings.whatsapp_message}
+      />
     </main>
   );
 };
