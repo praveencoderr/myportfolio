@@ -5,6 +5,15 @@ export type NavItem = {
   link: string;
 };
 
+export type PortfolioMeta = {
+  id: string;
+  slug: string;
+  title: string;
+  status: "draft" | "published";
+  custom_domain: string | null;
+  domain_status: "unconfigured" | "pending" | "verified" | "error";
+};
+
 export type Profile = {
   full_name: string;
   role: string;
@@ -95,6 +104,7 @@ export type SettingsMap = {
 };
 
 export type PortfolioContent = {
+  portfolio: PortfolioMeta;
   profile: Profile;
   sections: Record<string, SectionContent>;
   settings: SettingsMap;
@@ -111,11 +121,26 @@ export type CmsResult =
   | { status: "ready"; content: PortfolioContent }
   | { status: Exclude<CmsStatus, "ready">; message: string };
 
+type PortfolioLookup = {
+  slug?: string;
+  host?: string | null;
+};
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const DEFAULT_PORTFOLIO_SLUG =
+  process.env.NEXT_PUBLIC_DEFAULT_PORTFOLIO_SLUG ?? "praveen-gupta";
 
 function normalizeUrl(url: string) {
   return url.replace(/\/$/, "");
+}
+
+function normalizeHost(host: string | null | undefined) {
+  return host?.split(":")[0]?.toLowerCase().replace(/^www\./, "") ?? null;
+}
+
+function restFilter(value: string) {
+  return encodeURIComponent(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -169,6 +194,40 @@ async function readTable<T>(table: string, query: string): Promise<T[]> {
   return response.json();
 }
 
+async function findPortfolio({
+  slug,
+  host,
+}: PortfolioLookup): Promise<PortfolioMeta | null> {
+  const select =
+    "select=id,slug,title,status,custom_domain,domain_status&status=eq.published&limit=1";
+  const normalizedHost = normalizeHost(host);
+
+  if (slug) {
+    const rows = await readTable<PortfolioMeta>(
+      "portfolios",
+      `${select}&slug=eq.${restFilter(slug)}`
+    );
+    return rows[0] ?? null;
+  }
+
+  if (normalizedHost) {
+    const rows = await readTable<PortfolioMeta>(
+      "portfolios",
+      `${select}&custom_domain=eq.${restFilter(normalizedHost)}`
+    );
+
+    if (rows[0]) {
+      return rows[0];
+    }
+  }
+
+  const rows = await readTable<PortfolioMeta>(
+    "portfolios",
+    `${select}&slug=eq.${restFilter(DEFAULT_PORTFOLIO_SLUG)}`
+  );
+  return rows[0] ?? null;
+}
+
 function mapSettings(
   rows: Array<{ key: string; value: unknown }>
 ): SettingsMap {
@@ -204,7 +263,9 @@ function mapSections(rows: SectionContent[]) {
   }, {});
 }
 
-export async function getPortfolioContent(): Promise<CmsResult> {
+export async function getPortfolioContent(
+  lookup: PortfolioLookup = {}
+): Promise<CmsResult> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return {
       status: "missing-env",
@@ -214,6 +275,18 @@ export async function getPortfolioContent(): Promise<CmsResult> {
   }
 
   try {
+    const portfolio = await findPortfolio(lookup);
+
+    if (!portfolio) {
+      return {
+        status: "empty",
+        message: lookup.slug
+          ? `No published portfolio found for "${lookup.slug}".`
+          : "CMS is connected, but no published portfolio was found.",
+      };
+    }
+
+    const portfolioFilter = `portfolio_id=eq.${portfolio.id}`;
     const [
       profileRows,
       sectionRows,
@@ -227,39 +300,39 @@ export async function getPortfolioContent(): Promise<CmsResult> {
     ] = await Promise.all([
       readTable<Profile>(
         "profile",
-        "select=full_name,role,location,email,phone,portfolio_url,github_url,linkedin_url,leetcode_url,summary&slug=eq.main&published=eq.true&limit=1"
+        `select=full_name,role,location,email,phone,portfolio_url,github_url,linkedin_url,leetcode_url,summary&${portfolioFilter}&published=eq.true&limit=1`
       ),
       readTable<SectionContent>(
         "sections",
-        "select=key,eyebrow,title,description&published=eq.true&order=key.asc"
+        `select=key,eyebrow,title,description&${portfolioFilter}&published=eq.true&order=key.asc`
       ),
       readTable<{ key: string; value: unknown }>(
         "settings",
-        "select=key,value&published=eq.true&order=key.asc"
+        `select=key,value&${portfolioFilter}&published=eq.true&order=key.asc`
       ),
       readTable<Metric>(
         "metrics",
-        "select=id,value,label,href&published=eq.true&order=sort_order.asc,label.asc"
+        `select=id,value,label,href&${portfolioFilter}&published=eq.true&order=sort_order.asc,label.asc`
       ),
       readTable<Skill>(
         "skills",
-        "select=id,category,name,featured&published=eq.true&order=category.asc,sort_order.asc,name.asc"
+        `select=id,category,name,featured&${portfolioFilter}&published=eq.true&order=category.asc,sort_order.asc,name.asc`
       ),
       readTable<ExperienceItem>(
         "experience",
-        "select=id,role,company,location,employment_type,period,summary,bullets,tech,thumbnail&published=eq.true&order=sort_order.asc,company.asc"
+        `select=id,role,company,location,employment_type,period,summary,bullets,tech,thumbnail&${portfolioFilter}&published=eq.true&order=sort_order.asc,company.asc`
       ),
       readTable<Project>(
         "projects",
-        "select=id,title,subtitle,description,image,icon_list,tech,live_url,code_url,case_study_url,featured&published=eq.true&order=sort_order.asc,title.asc"
+        `select=id,title,subtitle,description,image,icon_list,tech,live_url,code_url,case_study_url,featured&${portfolioFilter}&published=eq.true&order=sort_order.asc,title.asc`
       ),
       readTable<Achievement>(
         "achievements",
-        "select=id,title,description,href&published=eq.true&order=sort_order.asc,title.asc"
+        `select=id,title,description,href&${portfolioFilter}&published=eq.true&order=sort_order.asc,title.asc`
       ),
       readTable<Education>(
         "education",
-        "select=id,institution,degree,location,period&published=eq.true&order=sort_order.asc,institution.asc"
+        `select=id,institution,degree,location,period&${portfolioFilter}&published=eq.true&order=sort_order.asc,institution.asc`
       ),
     ]);
 
@@ -278,6 +351,7 @@ export async function getPortfolioContent(): Promise<CmsResult> {
     return {
       status: "ready",
       content: {
+        portfolio,
         profile,
         sections,
         settings,

@@ -16,18 +16,25 @@
 
 ## CMS Admin
 - Missing service role key: CMS API returns a configuration error and does not attempt writes.
-- User is not signed in: CMS asks for sign-in before loading editable content.
-- Signed-in user is not in `CMS_ADMIN_EMAILS`: CMS blocks loading and saving.
+- User is not signed in: CMS shows the current published/template portfolio but blocks save, resume import, publish, and domain actions.
+- New signed-in user has no portfolio: CMS clones the default Praveen portfolio into a draft workspace.
+- Signed-in user attempts another user's portfolio: CMS API returns 403.
 - Save payload contains invalid JSON: CMS keeps the last valid content and shows the parse error.
 - Ordering conflicts: CMS preserves explicit `sort_order`; equal values are resolved by title/name order in the portfolio fetch.
 
+## Resume AI
+- Missing `OPENAI_API_KEY`: resume import returns a configuration message and keeps manual editing available.
+- Unsupported resume type: reject anything outside PDF and DOCX.
+- Oversized resume: reject files larger than 10MB.
+- Sparse AI output: merge only extracted non-empty sections and keep existing editable content for empty sections.
+
 ## Supabase Security
-- Public anon users can read only rows where `published = true`.
+- Public anon users can read only content under portfolios where `status = 'published'` and rows where `published = true`.
 - Unauthenticated writes fail through RLS.
-- Authenticated non-admin writes fail through RLS and CMS API checks.
-- Admin email changes require updating both `CMS_ADMIN_EMAILS` and the `cms_admins` table.
+- Authenticated users can write only portfolios they own; platform admins can support via `CMS_ADMIN_EMAILS`.
 
 ## Deployment
 - Portfolio and CMS use different Vercel projects: ensure both have matching Supabase URL and anon key.
-- CMS deployed without `CMS_ADMIN_EMAILS`: no user should be able to save content.
-- Seed data re-run: collection tables are truncated and replaced, so use the CMS for production edits after initial seed.
+- Missing Vercel domain env vars: custom domain actions return a clear disabled-state error.
+- Custom domain is unverified: keep `/p/[slug]` live while showing pending DNS status.
+- Seed data re-run: only the default Praveen portfolio is reset; user portfolios are not truncated.

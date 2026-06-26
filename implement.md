@@ -4,7 +4,8 @@
 1. Create a Supabase project.
 2. Open SQL Editor and run `supabase/schema.sql`.
 3. Run `supabase/seed.sql` to add resume-derived starter content and seed `coderpraveengupta@gmail.com` as an admin.
-4. In Supabase Auth, enable email magic links or email/password login.
+4. In Supabase Auth, enable email/password login and Google OAuth.
+5. In Storage, confirm the private `resumes` bucket exists after running the schema.
 
 ## Portfolio Environment
 Set these variables on the public portfolio deployment:
@@ -12,9 +13,10 @@ Set these variables on the public portfolio deployment:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_DEFAULT_PORTFOLIO_SLUG=praveen-gupta
 ```
 
-The portfolio uses public REST reads through the anon key and only renders published CMS records.
+The portfolio uses public REST reads through the anon key and renders published portfolios from `/`, `/p/[slug]`, or a matching custom domain.
 
 ## CMS Environment
 Deploy `/cms` as a separate app and set:
@@ -24,9 +26,15 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 CMS_ADMIN_EMAILS=coderpraveengupta@gmail.com
+PORTFOLIO_BASE_URL=https://your-portfolio-domain.com
+OPENAI_API_KEY=your_openai_key
+OPENAI_RESUME_MODEL=gpt-4.1-mini
+VERCEL_TOKEN=your_vercel_token
+VERCEL_TEAM_ID=your_vercel_team_or_org_id
+VERCEL_PORTFOLIO_PROJECT_ID=your_public_portfolio_project_id
 ```
 
-The CMS checks the logged-in Supabase Auth user email against `CMS_ADMIN_EMAILS` before allowing reads or writes through its API.
+The CMS lets users create their own portfolio workspace after sign-in. `CMS_ADMIN_EMAILS` remains an optional override for support/admin access.
 
 ## Local Commands
 Portfolio:
@@ -51,10 +59,13 @@ npm run build
 1. Deploy the portfolio from the repository root.
 2. Deploy the CMS as a separate Vercel project with root directory `cms`.
 3. Add the matching Supabase env vars to both projects.
-4. Visit the CMS deployment, sign in with an admin email, edit content, and save.
-5. Refresh the portfolio and confirm the updated published content appears.
+4. Visit the CMS deployment and sign up/sign in.
+5. The CMS creates a draft portfolio from the Praveen template on first login.
+6. Edit content or import a resume, then click `Make Portfolio`.
+7. Confirm the portfolio loads at `/p/[slug]`.
 
 ## Content Model
+- `portfolios`: owner, slug, status, domain configuration, and publish metadata.
 - `profile`: identity, role, contact links, summary.
 - `sections`: hero/about/projects/experience/approach/contact copy.
 - `settings`: navigation, resume URL, WhatsApp phone/message, build steps.
@@ -64,3 +75,8 @@ npm run build
 - `projects`: project details, media, tech, optional links.
 - `achievements`: awards and proof points.
 - `education`: degree and school information.
+
+## Resume AI And Domain Automation
+- Resume autofill requires `OPENAI_API_KEY`; without it the CMS shows a clear disabled state.
+- Custom domain automation requires `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and `VERCEL_PORTFOLIO_PROJECT_ID`.
+- Users must already own their domains; the CMS only adds/verifies domains on the shared Vercel portfolio project.

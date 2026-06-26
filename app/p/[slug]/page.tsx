@@ -1,12 +1,13 @@
 import CmsUnavailable from "@/components/CmsUnavailable";
 import PortfolioShell from "@/components/PortfolioShell";
 import { getPortfolioContent } from "@/lib/cms";
-import { headers } from "next/headers";
 
-const Home = async () => {
-  const result = await getPortfolioContent({
-    host: headers().get("host"),
-  });
+const PublicPortfolioPage = async ({
+  params,
+}: {
+  params: { slug: string };
+}) => {
+  const result = await getPortfolioContent({ slug: params.slug });
 
   if (result.status !== "ready") {
     return <CmsUnavailable message={result.message} />;
@@ -15,4 +16,4 @@ const Home = async () => {
   return <PortfolioShell content={result.content} />;
 };
 
-export default Home;
+export default PublicPortfolioPage;
