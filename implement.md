@@ -27,7 +27,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 CMS_ADMIN_EMAILS=coderpraveengupta@gmail.com
 PORTFOLIO_BASE_URL=https://your-portfolio-domain.com
-OPENAI_API_KEY=your_openai_key
+OPENAI_API_KEY=optional_paid_openai_key
 OPENAI_RESUME_MODEL=gpt-4.1-mini
 VERCEL_TOKEN=your_vercel_token
 VERCEL_TEAM_ID=your_vercel_team_or_org_id
@@ -77,6 +77,7 @@ npm run build
 - `education`: degree and school information.
 
 ## Resume AI And Domain Automation
-- Resume autofill requires `OPENAI_API_KEY`; without it the CMS shows a clear disabled state.
+- Resume autofill works without a paid OpenAI key by using the built-in PDF/DOCX text parser.
+- If `OPENAI_API_KEY` is provided, the CMS upgrades resume extraction to OpenAI structured output and falls back to the built-in parser on API failure.
 - Custom domain automation requires `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and `VERCEL_PORTFOLIO_PROJECT_ID`.
 - Users must already own their domains; the CMS only adds/verifies domains on the shared Vercel portfolio project.

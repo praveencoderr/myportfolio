@@ -23,10 +23,11 @@
 - Ordering conflicts: CMS preserves explicit `sort_order`; equal values are resolved by title/name order in the portfolio fetch.
 
 ## Resume AI
-- Missing `OPENAI_API_KEY`: resume import returns a configuration message and keeps manual editing available.
+- Missing `OPENAI_API_KEY`: resume import uses the free built-in parser and tells the user to review before saving.
+- OpenAI quota/key failure: fall back to the built-in parser instead of blocking upload.
 - Unsupported resume type: reject anything outside PDF and DOCX.
 - Oversized resume: reject files larger than 10MB.
-- Sparse AI output: merge only extracted non-empty sections and keep existing editable content for empty sections.
+- Sparse parser output: merge only extracted non-empty sections and keep existing editable content for empty sections.
 
 ## Supabase Security
 - Public anon users can read only content under portfolios where `status = 'published'` and rows where `published = true`.

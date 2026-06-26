@@ -34,13 +34,14 @@ Build the CMS into a multi-user portfolio platform: users can sign up/sign in wi
 - Add private Supabase Storage bucket `resumes`.
 - Add CMS route `POST /api/resume/parse`.
 - Accept PDF and DOCX uploads.
-- Extract text using server-side parsing, then send to OpenAI with structured JSON output.
-- Map AI output into CMS fields: profile, summary, skills, experience, projects, education, achievements, metrics.
+- Extract text using server-side parsing, then use OpenAI structured JSON output when a paid key is configured.
+- Use a free built-in parser when OpenAI is not configured, so resume upload still autofills basic portfolio fields.
+- Map parsed output into CMS fields: profile, summary, skills, experience, projects, education, achievements, metrics.
 - User reviews extracted data before saving.
-- Required env vars:
+- Optional env vars for enhanced AI extraction:
   - `OPENAI_API_KEY`
   - `OPENAI_RESUME_MODEL`
-- If OpenAI env is missing, disable resume autofill with a clear CMS configuration message.
+- If OpenAI env is missing, keep resume autofill enabled with the built-in parser and tell the user to review before saving.
 
 ### One-Click Publish And Domains
 - "Make Portfolio" button creates or updates a published portfolio record and returns a live URL.
@@ -107,7 +108,7 @@ Build the CMS into a multi-user portfolio platform: users can sign up/sign in wi
 ## Assumptions
 - Use one shared Vercel portfolio app for all users, selected for speed and lower cost.
 - Saving requires login ownership only, not a separate update password.
-- OpenAI is used for resume autofill.
+- OpenAI is used for higher-quality resume autofill when a paid key is present; otherwise the built-in parser is used.
 - Users must already own custom domains; v1 does not buy domains.
 - Google OAuth requires Supabase and Google Console setup.
 - References: Supabase Google Auth, Supabase OAuth, Vercel REST API/domains/deployments, OpenAI structured/file-capable extraction.

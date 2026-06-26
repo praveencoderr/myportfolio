@@ -535,7 +535,13 @@ export default function CmsPage() {
           ? asArray(extracted.education)
           : current.education,
       }));
-      setStatus("Resume imported. Review before saving.");
+      setStatus(
+        payload.warning
+          ? String(payload.warning)
+          : payload.parser === "built-in"
+          ? "Resume imported with the free built-in parser. Review before saving."
+          : "Resume imported with AI. Review before saving."
+      );
     } catch (error) {
       setStatus(
         error instanceof Error ? error.message : "Resume import failed."
