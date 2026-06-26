@@ -46,7 +46,7 @@ insert into public.profile (
   'coderpraveengupta@gmail.com',
   '+91 7705858116',
   null,
-  'https://github.com/praveen202105',
+  'https://github.com/praveencoderr',
   'https://www.linkedin.com/in/praveen-gupta-45708b183/',
   'https://leetcode.com/u/Praveen219/',
   'Full Stack Developer with nearly 3 years of professional experience building scalable React, Next.js, Node.js, and AI-powered product systems.',
@@ -101,6 +101,14 @@ values
   ),
   (
     '00000000-0000-0000-0000-000000000001',
+    'achievements',
+    'Achievements',
+    'Proof points across AI, DSA, certifications, and delivery.',
+    'A quick scan of competitive programming milestones, AI recognition, certificates, and shipped project consistency.',
+    true
+  ),
+  (
+    '00000000-0000-0000-0000-000000000001',
     'approach',
     'How I build',
     'Practical process, measurable output.',
@@ -130,6 +138,7 @@ values
       {"name":"About","link":"#about"},
       {"name":"Projects","link":"#projects"},
       {"name":"Experience","link":"#experience"},
+      {"name":"Achievements","link":"#achievements"},
       {"name":"Contact","link":"#contact"}
     ]'::jsonb,
     true
@@ -297,8 +306,8 @@ values
     '/p4.svg',
     array['/next.svg', '/tail.svg', '/ts.svg', '/stream.svg', '/dock.svg'],
     array['Next.js', 'TypeScript', 'Tailwind', 'Zustand', 'TanStack Query', 'NestJS', 'JWT', 'Prisma', 'PostgreSQL', 'Redis', 'Socket.IO', 'WebRTC', 'Groq', 'Gemini', 'RAG'],
-    null,
-    null,
+    'https://vently-web-gamma.vercel.app',
+    'https://github.com/praveencoderr/Vently',
     null,
     true,
     1,
@@ -383,9 +392,11 @@ values
 delete from public.achievements where portfolio_id = '00000000-0000-0000-0000-000000000001';
 insert into public.achievements (portfolio_id, title, description, href, sort_order, published)
 values
-  ('00000000-0000-0000-0000-000000000001', 'Google Cloud Agentic AI Day 2025 Finalist', 'Selected from 57K+ applicants.', null, 1, true),
-  ('00000000-0000-0000-0000-000000000001', '900+ LeetCode Questions', 'Strengthened data structures, algorithms, and problem-solving skills.', 'https://leetcode.com/u/Praveen219/', 2, true),
-  ('00000000-0000-0000-0000-000000000001', '2nd Place - CodeRush', 'Ranked 2nd among 1,000+ participants at the college level.', null, 3, true);
+  ('00000000-0000-0000-0000-000000000001', 'Google Cloud Agentic AI Day 2025 Finalist', 'Selected from 57K+ applicants for Agentic AI Day 2025.', 'https://drive.google.com/file/d/1DRRw6DmAVJa_qxOuZ5WWaX7fQLA2hvYd/view?usp=sharing', 1, true),
+  ('00000000-0000-0000-0000-000000000001', '900+ LeetCode Questions', 'Strengthened data structures, algorithms, and problem-solving skills through consistent practice.', 'https://leetcode.com/u/Praveen219/', 2, true),
+  ('00000000-0000-0000-0000-000000000001', 'HackerRank Problem Solving Certificate', 'Earned HackerRank certification for problem-solving fundamentals.', 'https://www.hackerrank.com/certificates/853ce4939725', 3, true),
+  ('00000000-0000-0000-0000-000000000001', '20+ Shipped Projects', 'Completed 20+ personal and professional development projects showcased through GitHub and portfolio work.', 'https://github.com/praveencoderr', 4, true),
+  ('00000000-0000-0000-0000-000000000001', '2nd Place - CodeRush', 'Ranked 2nd among 1,000+ participants at the college level.', null, 5, true);
 
 delete from public.education where portfolio_id = '00000000-0000-0000-0000-000000000001';
 insert into public.education (portfolio_id, institution, degree, location, period, sort_order, published)

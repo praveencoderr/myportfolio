@@ -1,3 +1,4 @@
+import Achievements from "@/components/Achievements";
 import About from "@/components/About";
 import Approach from "@/components/Approach";
 import Experience from "@/components/Experience";
@@ -32,8 +33,11 @@ const PortfolioShell = ({ content }: { content: PortfolioContent }) => {
         <Experience
           section={content.sections.experience}
           experience={content.experience}
-          achievements={content.achievements}
           education={content.education}
+        />
+        <Achievements
+          section={content.sections.achievements}
+          achievements={content.achievements}
         />
         <Approach
           section={content.sections.approach}

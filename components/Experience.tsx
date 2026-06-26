@@ -1,8 +1,7 @@
 import Image from "next/image";
-import { Award, CheckCircle2, GraduationCap } from "lucide-react";
+import { CheckCircle2, GraduationCap } from "lucide-react";
 
 import type {
-  Achievement,
   Education,
   ExperienceItem,
   SectionContent,
@@ -12,12 +11,10 @@ import { MotionCard, Reveal, Stagger, StaggerItem } from "./ui/Motion";
 const Experience = ({
   section,
   experience,
-  achievements,
   education,
 }: {
   section?: SectionContent;
   experience: ExperienceItem[];
-  achievements: Achievement[];
   education: Education[];
 }) => {
   return (
@@ -109,54 +106,10 @@ const Experience = ({
         ))}
       </Stagger>
 
-      {(achievements.length > 0 || education.length > 0) && (
-        <Stagger className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          {achievements.length > 0 && (
-            <StaggerItem>
-              <MotionCard className="p-6">
-                <div className="mb-5 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/30 bg-violet-300/10 text-violet-100">
-                    <Award className="h-5 w-5" />
-                  </span>
-                  <h3 className="text-xl font-semibold text-white">
-                    Achievements
-                  </h3>
-                </div>
-                <div className="grid gap-3">
-                  {achievements.map((achievement) => {
-                    const content = (
-                      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 transition hover:border-cyan-300/30">
-                        <h4 className="text-sm font-semibold text-white">
-                          {achievement.title}
-                        </h4>
-                        {achievement.description && (
-                          <p className="mt-2 text-sm leading-6 text-white-200">
-                            {achievement.description}
-                          </p>
-                        )}
-                      </div>
-                    );
-
-                    return achievement.href ? (
-                      <a
-                        key={achievement.id}
-                        href={achievement.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {content}
-                      </a>
-                    ) : (
-                      <div key={achievement.id}>{content}</div>
-                    );
-                  })}
-                </div>
-              </MotionCard>
-            </StaggerItem>
-          )}
-
-          {education.length > 0 && (
-            <StaggerItem>
+      {education.length > 0 && (
+        <Stagger className="mt-5 grid gap-5 lg:grid-cols-2">
+          {education.map((item) => (
+            <StaggerItem key={item.id}>
               <MotionCard className="p-6">
                 <div className="mb-5 flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-300/10 text-emerald-100">
@@ -166,29 +119,20 @@ const Experience = ({
                     Education
                   </h3>
                 </div>
-                <div className="grid gap-3">
-                  {education.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
-                    >
-                      <h4 className="text-sm font-semibold text-white">
-                        {item.degree}
-                      </h4>
-                      <p className="mt-2 text-sm leading-6 text-white-200">
-                        {item.institution}
-                      </p>
-                      <p className="mt-1 text-xs text-white-200">
-                        {[item.location, item.period]
-                          .filter(Boolean)
-                          .join(" | ")}
-                      </p>
-                    </div>
-                  ))}
+                <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                  <h4 className="text-sm font-semibold text-white">
+                    {item.degree}
+                  </h4>
+                  <p className="mt-2 text-sm leading-6 text-white-200">
+                    {item.institution}
+                  </p>
+                  <p className="mt-1 text-xs text-white-200">
+                    {[item.location, item.period].filter(Boolean).join(" | ")}
+                  </p>
                 </div>
               </MotionCard>
             </StaggerItem>
-          )}
+          ))}
         </Stagger>
       )}
     </section>
