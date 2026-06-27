@@ -67,9 +67,12 @@ export type Project = {
   title: string;
   subtitle: string | null;
   description: string | null;
+  role: string | null;
   image: string | null;
   icon_list: string[];
   tech: string[];
+  features: string[];
+  highlights: string[];
   live_url: string | null;
   code_url: string | null;
   case_study_url: string | null;
@@ -325,7 +328,7 @@ export async function getPortfolioContent(
       ),
       readTable<Project>(
         "projects",
-        `select=id,title,subtitle,description,image,icon_list,tech,live_url,code_url,case_study_url,featured&${portfolioFilter}&published=eq.true&order=sort_order.asc,title.asc`
+        `select=id,title,subtitle,description,role,image,icon_list,tech,features,highlights,live_url,code_url,case_study_url,featured&${portfolioFilter}&published=eq.true&order=sort_order.asc,title.asc`
       ),
       readTable<Achievement>(
         "achievements",

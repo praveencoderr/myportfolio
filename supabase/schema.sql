@@ -182,9 +182,12 @@ create table if not exists public.projects (
   title text not null,
   subtitle text,
   description text,
+  role text,
   image text,
   icon_list text[] not null default '{}',
   tech text[] not null default '{}',
+  features text[] not null default '{}',
+  highlights text[] not null default '{}',
   live_url text,
   code_url text,
   case_study_url text,
@@ -230,6 +233,9 @@ alter table public.projects add column if not exists portfolio_id uuid default '
 alter table public.achievements add column if not exists portfolio_id uuid default '00000000-0000-0000-0000-000000000001';
 alter table public.education add column if not exists portfolio_id uuid default '00000000-0000-0000-0000-000000000001';
 alter table public.profile add column if not exists gfg_url text;
+alter table public.projects add column if not exists role text;
+alter table public.projects add column if not exists features text[] not null default '{}';
+alter table public.projects add column if not exists highlights text[] not null default '{}';
 
 alter table public.profile alter column portfolio_id set not null;
 alter table public.sections alter column portfolio_id set not null;

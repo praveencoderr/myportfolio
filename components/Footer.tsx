@@ -1,5 +1,12 @@
 import Image from "next/image";
 import { ArrowUpRight, Download, Mail } from "lucide-react";
+import type { IconType } from "react-icons";
+import {
+  SiGeeksforgeeks,
+  SiGithub,
+  SiLeetcode,
+  SiLinkedin,
+} from "react-icons/si";
 
 import type { Profile, SectionContent, SettingsMap } from "@/lib/cms";
 import { Reveal, Stagger, StaggerItem } from "./ui/Motion";
@@ -7,8 +14,7 @@ import { Reveal, Stagger, StaggerItem } from "./ui/Motion";
 type SocialLink = {
   id: string;
   name: string;
-  img?: string;
-  badge?: string;
+  icon: IconType;
   link: string;
 };
 
@@ -26,23 +32,23 @@ const Footer = ({
   settings: SettingsMap;
 }) => {
   const socialItems: MaybeSocialLink[] = [
-    { id: "github", name: "GitHub", img: "/git.svg", link: profile.github_url },
+    { id: "github", name: "GitHub", icon: SiGithub, link: profile.github_url },
     {
       id: "linkedin",
       name: "LinkedIn",
-      img: "/link.svg",
+      icon: SiLinkedin,
       link: profile.linkedin_url,
     },
     {
       id: "leetcode",
       name: "LeetCode",
-      badge: "LC",
+      icon: SiLeetcode,
       link: profile.leetcode_url,
     },
     {
       id: "gfg",
       name: "GeeksforGeeks",
-      badge: "GFG",
+      icon: SiGeeksforgeeks,
       link: profile.gfg_url,
     },
   ];
@@ -104,32 +110,24 @@ const Footer = ({
         </p>
 
         <Stagger className="flex items-center gap-3">
-          {socialMedia.map((info) => (
-            <StaggerItem key={info.id}>
-              <a
-                href={info.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={info.name}
-                className="group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
-              >
-                {info.img ? (
-                  <Image
-                    src={info.img}
-                    alt=""
-                    width={20}
-                    height={20}
-                    className="h-5 w-5"
-                  />
-                ) : (
-                  <span className="text-[10px] font-bold tracking-normal text-white">
-                    {info.badge}
-                  </span>
-                )}
-                <ArrowUpRight className="absolute h-3 w-3 translate-x-3 -translate-y-3 text-cyan-100 opacity-0 transition group-hover:opacity-100" />
-              </a>
-            </StaggerItem>
-          ))}
+          {socialMedia.map((info) => {
+            const Icon = info.icon;
+
+            return (
+              <StaggerItem key={info.id}>
+                <a
+                  href={info.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={info.name}
+                  className="group relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+                >
+                  <Icon className="h-5 w-5 text-white transition group-hover:text-cyan-100" />
+                  <ArrowUpRight className="absolute h-3 w-3 translate-x-3 -translate-y-3 text-cyan-100 opacity-0 transition group-hover:opacity-100" />
+                </a>
+              </StaggerItem>
+            );
+          })}
         </Stagger>
       </Reveal>
     </footer>

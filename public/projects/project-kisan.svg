@@ -1,0 +1,23 @@
+<svg width="960" height="600" viewBox="0 0 960 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="600" rx="32" fill="#03110b"/>
+  <path d="M0 420c180-80 334-80 514 0s286 80 446 0v180H0z" fill="#0b3b2a"/>
+  <path d="M0 462c170-54 315-54 485 0s300 54 475 0v138H0z" fill="#14532d"/>
+  <circle cx="784" cy="128" r="54" fill="#fde68a"/>
+  <rect x="96" y="92" width="382" height="310" rx="28" fill="#071426" stroke="#1f4f3b" stroke-width="2"/>
+  <text x="134" y="146" fill="#dcfce7" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="900">Project Kisan</text>
+  <text x="134" y="180" fill="#9ae6b4" font-family="Inter, Arial, sans-serif" font-size="17">Agentic agriculture assistant</text>
+  <rect x="134" y="224" width="276" height="58" rx="18" fill="#123526" stroke="#2f7d54"/>
+  <text x="158" y="259" fill="#dcfce7" font-family="Inter, Arial, sans-serif" font-size="18">Crop planning agent</text>
+  <rect x="134" y="306" width="276" height="58" rx="18" fill="#123526" stroke="#2f7d54"/>
+  <text x="158" y="341" fill="#dcfce7" font-family="Inter, Arial, sans-serif" font-size="18">Farm insights workflow</text>
+  <rect x="566" y="136" width="250" height="354" rx="34" fill="#071426" stroke="#22c55e" stroke-width="3"/>
+  <rect x="594" y="180" width="194" height="88" rx="20" fill="#123526"/>
+  <text x="620" y="216" fill="#dcfce7" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800">Soil advisory</text>
+  <text x="620" y="243" fill="#86efac" font-family="Inter, Arial, sans-serif" font-size="15">AI next action ready</text>
+  <rect x="594" y="296" width="194" height="52" rx="16" fill="#166534"/>
+  <text x="624" y="329" fill="#f0fdf4" font-family="Inter, Arial, sans-serif" font-size="16">Ask in local flow</text>
+  <path d="M642 430c24-76 76-76 100 0" stroke="#86efac" stroke-width="8" stroke-linecap="round"/>
+  <path d="M692 430V318" stroke="#86efac" stroke-width="8" stroke-linecap="round"/>
+  <path d="M692 362c-58-40-88-30-112 8 54 22 84 16 112-8z" fill="#22c55e"/>
+  <path d="M692 392c58-40 88-30 112 8-54 22-84 16-112-8z" fill="#34d399"/>
+</svg>

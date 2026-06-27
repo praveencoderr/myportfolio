@@ -1004,19 +1004,29 @@ export default function CmsPage() {
                     fields={[
                       "title",
                       "subtitle",
+                      "role",
                       "image",
                       "live_url",
                       "code_url",
                       "case_study_url",
                     ]}
-                    textareas={["description", "tech", "icon_list"]}
+                    textareas={[
+                      "description",
+                      "tech",
+                      "features",
+                      "highlights",
+                      "icon_list",
+                    ]}
                     toggles={["featured", "published"]}
                     onUpdate={(index, field, value) =>
                       updateRow(
                         "projects",
                         index,
                         field,
-                        field === "tech" || field === "icon_list"
+                        field === "tech" ||
+                          field === "features" ||
+                          field === "highlights" ||
+                          field === "icon_list"
                           ? parseLines(String(value))
                           : value
                       )
@@ -1025,10 +1035,13 @@ export default function CmsPage() {
                       addRow("projects", {
                         title: "Project",
                         subtitle: "",
+                        role: "",
                         description: "",
-                        image: "/p1.svg",
+                        image: "/projects/project-kisan.svg",
                         icon_list: [],
                         tech: [],
+                        features: [],
+                        highlights: [],
                         live_url: "",
                         code_url: "",
                         case_study_url: "",

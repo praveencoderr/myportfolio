@@ -2,13 +2,15 @@ import {
   ArrowUpRight,
   Award,
   CheckCircle2,
-  Code2,
-  ExternalLink,
-  Github,
-  Linkedin,
   Trophy,
-  type LucideIcon,
 } from "lucide-react";
+import type { IconType } from "react-icons";
+import {
+  SiGeeksforgeeks,
+  SiGithub,
+  SiLeetcode,
+  SiLinkedin,
+} from "react-icons/si";
 
 import type { Achievement, Profile, SectionContent } from "@/lib/cms";
 import { MotionCard, Reveal, Stagger, StaggerItem } from "./ui/Motion";
@@ -34,32 +36,32 @@ const Achievements = ({
       label: "LeetCode",
       value: "900+ solved",
       href: profile.leetcode_url,
-      icon: Code2,
+      icon: SiLeetcode,
     },
     {
       label: "GeeksforGeeks",
       value: "DSA profile",
       href: profile.gfg_url,
-      icon: ExternalLink,
+      icon: SiGeeksforgeeks,
     },
     {
       label: "GitHub",
       value: "Active projects",
       href: profile.github_url,
-      icon: Github,
+      icon: SiGithub,
     },
     {
       label: "LinkedIn",
       value: "Work updates",
       href: profile.linkedin_url,
-      icon: Linkedin,
+      icon: SiLinkedin,
     },
   ].filter(
     (item): item is {
       label: string;
       value: string;
       href: string;
-      icon: LucideIcon;
+      icon: IconType;
     } => Boolean(item.href)
   );
 

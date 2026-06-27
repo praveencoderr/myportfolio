@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -122,10 +122,11 @@ export function StaggerItem({
 export function MotionCard({
   children,
   className,
+  ...props
 }: {
   children: ReactNode;
   className?: string;
-}) {
+} & ComponentPropsWithoutRef<typeof motion.article>) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -143,6 +144,7 @@ export function MotionCard({
         "rounded-lg border border-white/10 bg-[#05071a]",
         className
       )}
+      {...props}
     >
       {children}
     </motion.article>
