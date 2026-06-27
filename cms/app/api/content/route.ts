@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import type { ContentPayload } from "@/lib/content-types";
+import { defaultPortfolioId, type ContentPayload } from "@/lib/content-types";
 import {
+  createServiceClient,
   getOptionalAuth,
+  getConfig,
   jsonError,
   readContent,
-  requireAuth,
   saveContent,
-  userCanManagePortfolio,
 } from "@/lib/server-content";
 
 export const runtime = "nodejs";
@@ -39,32 +39,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const auth = await requireAuth(request);
+  const config = getConfig();
 
-  if ("error" in auth) {
-    return auth.error;
+  if (!config) {
+    return jsonError("CMS environment is incomplete.", 500);
   }
 
   try {
-    const portfolioId = request.nextUrl.searchParams.get("portfolioId");
-
-    if (!portfolioId) {
-      return jsonError("Missing portfolioId.", 400);
-    }
-
-    const canManage = await userCanManagePortfolio(
-      auth.supabase,
-      portfolioId,
-      auth.user,
-      auth.isAdmin
-    );
-
-    if (!canManage) {
-      return jsonError("You cannot update this portfolio.", 403);
-    }
-
     const content = (await request.json()) as ContentPayload;
-    await saveContent(auth.supabase, portfolioId, content);
+    const supabase = createServiceClient(config);
+    await saveContent(supabase, defaultPortfolioId, content);
 
     return NextResponse.json({ ok: true });
   } catch (error) {

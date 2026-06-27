@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
-import {
-  Globe2,
-  Loader2,
-  LogOut,
-  Mail,
-  Rocket,
-  Save,
-  Upload,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, Save } from "lucide-react";
 
-import { getBrowserSupabase } from "@/lib/supabase-browser";
-import type { ContentPayload, PortfolioRecord } from "@/lib/content-types";
+import type { ContentPayload } from "@/lib/content-types";
 
 type EditorKey =
   | "profile"
@@ -24,9 +14,7 @@ type EditorKey =
   | "experience"
   | "projects"
   | "achievements"
-  | "education"
-  | "deploy"
-  | "advanced";
+  | "education";
 
 type JsonRecord = Record<string, any>;
 
@@ -40,8 +28,6 @@ const editorKeys: Array<{ key: EditorKey; label: string }> = [
   { key: "projects", label: "Projects" },
   { key: "achievements", label: "Achievements" },
   { key: "education", label: "Education" },
-  { key: "deploy", label: "Deploy" },
-  { key: "advanced", label: "Advanced JSON" },
 ];
 
 const collectionKeys = [
@@ -64,10 +50,6 @@ const emptyContent: ContentPayload = {
   achievements: [],
   education: [],
 };
-
-function formatJson(value: unknown) {
-  return JSON.stringify(value, null, 2);
-}
 
 function asArray(value: unknown): JsonRecord[] {
   return Array.isArray(value) ? (value as JsonRecord[]) : [];
@@ -202,36 +184,11 @@ function Toggle({
 }
 
 export default function CmsPage() {
-  const supabase = useMemo(() => getBrowserSupabase(), []);
-  const [session, setSession] = useState<Session | null>(null);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [content, setContent] = useState<ContentPayload>(emptyContent);
   const [activeKey, setActiveKey] = useState<EditorKey>("profile");
   const [status, setStatus] = useState("Loading current portfolio...");
-  const [portfolioUrl, setPortfolioUrl] = useState("");
-  const [domain, setDomain] = useState("");
-  const [advancedJson, setAdvancedJson] = useState(formatJson(emptyContent));
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isParsingResume, setIsParsingResume] = useState(false);
-
-  useEffect(() => {
-    if (!supabase) {
-      return;
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-    });
-
-    return () => data.subscription.unsubscribe();
-  }, [supabase]);
 
   useEffect(() => {
     async function loadPublicTemplate() {
@@ -247,11 +204,7 @@ export default function CmsPage() {
 
         const nextContent = normalizeContent(payload);
         setContent(nextContent);
-        setAdvancedJson(formatJson(nextContent));
-        setPortfolioUrl(
-          nextContent.portfolio?.slug ? `/p/${nextContent.portfolio.slug}` : ""
-        );
-        setStatus("Current portfolio loaded. Sign in to save changes.");
+        setStatus("Praveen portfolio loaded. Changes save only to this profile.");
       } catch (error) {
         setStatus(error instanceof Error ? error.message : "Load failed.");
       } finally {
@@ -261,50 +214,6 @@ export default function CmsPage() {
 
     loadPublicTemplate();
   }, []);
-
-  useEffect(() => {
-    const accessToken = session?.access_token;
-
-    if (!accessToken) {
-      return;
-    }
-
-    async function loadWorkspace() {
-      setIsLoading(true);
-      setStatus("Loading your portfolio workspace...");
-
-      try {
-        const response = await fetch("/api/portfolio/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({}),
-        });
-        const payload = await response.json();
-
-        if (!response.ok) {
-          throw new Error(payload.error ?? "Failed to load workspace.");
-        }
-
-        const nextContent = normalizeContent(payload.content);
-        setContent(nextContent);
-        setAdvancedJson(formatJson(nextContent));
-        setPortfolioUrl(payload.url ?? "");
-        setDomain(nextContent.portfolio?.custom_domain ?? "");
-        setStatus("Workspace loaded.");
-      } catch (error) {
-        setStatus(
-          error instanceof Error ? error.message : "Workspace load failed."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadWorkspace();
-  }, [session]);
 
   function updateProfile(key: string, value: unknown) {
     setContent((current) => ({
@@ -317,7 +226,7 @@ export default function CmsPage() {
   }
 
   function updateRow(
-    key: Exclude<EditorKey, "profile" | "deploy" | "advanced">,
+    key: Exclude<EditorKey, "profile">,
     index: number,
     field: string,
     value: unknown
@@ -344,313 +253,30 @@ export default function CmsPage() {
     }));
   }
 
-  async function signInWithGoogle() {
-    if (!supabase) {
-      return;
-    }
-
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-  }
-
-  async function submitEmailPassword() {
-    if (!supabase || !email || !password) {
-      return;
-    }
-
-    setIsLoading(true);
-    const auth =
-      authMode === "signin"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: window.location.origin },
-          });
-
-    setIsLoading(false);
-    setStatus(
-      auth.error
-        ? auth.error.message
-        : authMode === "signup"
-        ? "Account created. Check email if confirmation is required."
-        : "Signed in."
-    );
-  }
-
-  async function sendMagicLink() {
-    if (!supabase || !email) {
-      return;
-    }
-
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    });
-
-    setIsLoading(false);
-    setStatus(error ? error.message : "Check your email for the sign-in link.");
-  }
-
-  async function signOut() {
-    await supabase?.auth.signOut();
-    setSession(null);
-    setStatus("Signed out. Current published portfolio remains visible.");
-  }
-
   async function saveContent() {
-    if (!session?.access_token || !content.portfolio?.id) {
-      setStatus("Sign in before saving.");
-      return;
-    }
-
     setIsSaving(true);
-    setStatus("Saving content...");
+    setStatus("Saving Praveen portfolio...");
 
     try {
-      const response = await fetch(
-        `/api/content?portfolioId=${content.portfolio.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(content),
-        }
-      );
+      const response = await fetch("/api/content", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(content),
+      });
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(result.error ?? "Save failed.");
       }
 
-      setAdvancedJson(formatJson(content));
-      setStatus("Content saved.");
+      setStatus("Praveen portfolio saved.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Save failed.");
     } finally {
       setIsSaving(false);
     }
-  }
-
-  async function publishPortfolio() {
-    if (!session?.access_token) {
-      setStatus("Sign in before publishing.");
-      return;
-    }
-
-    await saveContent();
-    setIsSaving(true);
-    setStatus("Publishing portfolio...");
-
-    try {
-      const title =
-        textValue(content.profile.full_name) || content.portfolio?.title;
-      const response = await fetch("/api/portfolio/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          publish: true,
-          title: title ? `${title} Portfolio` : undefined,
-          slug: title,
-        }),
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Publish failed.");
-      }
-
-      const nextContent = normalizeContent(payload.content);
-      setContent(nextContent);
-      setPortfolioUrl(payload.url ?? "");
-      setAdvancedJson(formatJson(nextContent));
-      setStatus("Portfolio published.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Publish failed.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  async function parseResume(file: File | null) {
-    if (!file || !session?.access_token) {
-      setStatus("Sign in before importing a resume.");
-      return;
-    }
-
-    setIsParsingResume(true);
-    setStatus("Parsing resume...");
-
-    try {
-      const formData = new FormData();
-      formData.append("resume", file);
-      const response = await fetch("/api/resume/parse", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: formData,
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Resume parse failed.");
-      }
-
-      const extracted = payload.extracted ?? {};
-      setContent((current) => ({
-        ...current,
-        profile: {
-          ...current.profile,
-          ...asRecord(extracted.profile),
-        },
-        metrics: asArray(extracted.metrics).length
-          ? asArray(extracted.metrics)
-          : current.metrics,
-        skills: asArray(extracted.skills).length
-          ? asArray(extracted.skills)
-          : current.skills,
-        experience: asArray(extracted.experience).length
-          ? asArray(extracted.experience)
-          : current.experience,
-        projects: asArray(extracted.projects).length
-          ? asArray(extracted.projects)
-          : current.projects,
-        achievements: asArray(extracted.achievements).length
-          ? asArray(extracted.achievements)
-          : current.achievements,
-        education: asArray(extracted.education).length
-          ? asArray(extracted.education)
-          : current.education,
-      }));
-      setStatus(
-        payload.warning
-          ? String(payload.warning)
-          : payload.parser === "built-in"
-          ? "Resume imported with the free built-in parser. Review before saving."
-          : "Resume imported with AI. Review before saving."
-      );
-    } catch (error) {
-      setStatus(
-        error instanceof Error ? error.message : "Resume import failed."
-      );
-    } finally {
-      setIsParsingResume(false);
-    }
-  }
-
-  async function addDomain() {
-    if (!session?.access_token || !content.portfolio?.id) {
-      setStatus("Sign in before adding a domain.");
-      return;
-    }
-
-    setIsSaving(true);
-    setStatus("Adding domain...");
-
-    try {
-      const response = await fetch("/api/domain/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          portfolioId: content.portfolio.id,
-          domain,
-        }),
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Domain setup failed.");
-      }
-
-      setContent((current) => ({
-        ...current,
-        portfolio: payload.portfolio as PortfolioRecord,
-      }));
-      setStatus(`Domain ${payload.status}.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Domain setup failed.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  async function checkDomainStatus() {
-    if (!session?.access_token || !content.portfolio?.id) {
-      setStatus("Sign in before checking a domain.");
-      return;
-    }
-
-    setIsSaving(true);
-    setStatus("Checking domain...");
-
-    try {
-      const response = await fetch(
-        `/api/domain/status?portfolioId=${content.portfolio.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Domain check failed.");
-      }
-
-      setContent((current) => ({
-        ...current,
-        portfolio: payload.portfolio as PortfolioRecord,
-      }));
-      setStatus(`Domain ${payload.status}.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Domain check failed.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  function applyAdvancedJson() {
-    try {
-      const parsed = normalizeContent(JSON.parse(advancedJson));
-      setContent(parsed);
-      setStatus("Advanced JSON applied.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Invalid JSON.");
-    }
-  }
-
-  if (!supabase) {
-    return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <section className="max-w-xl rounded-lg border border-amber-300/25 bg-amber-300/10 p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-100">
-            CMS configuration needed
-          </p>
-          <h1 className="mt-4 text-3xl font-bold">Supabase env vars missing.</h1>
-          <p className="mt-4 leading-7 text-slate-300">
-            Add `NEXT_PUBLIC_SUPABASE_URL` and
-            `NEXT_PUBLIC_SUPABASE_ANON_KEY` to run the CMS.
-          </p>
-        </section>
-      </main>
-    );
   }
 
   return (
@@ -669,98 +295,19 @@ export default function CmsPage() {
               <p className="mt-2 min-h-5 text-sm text-slate-300">{status}</p>
             </div>
 
-            <div className="flex flex-col gap-3">
-              {session ? (
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={saveContent}
-                    disabled={isSaving}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-4 text-sm font-semibold text-ink disabled:opacity-60"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={publishPortfolio}
-                    disabled={isSaving}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-300 px-4 text-sm font-semibold text-ink disabled:opacity-60"
-                  >
-                    <Rocket className="h-4 w-4" />
-                    Make Portfolio
-                  </button>
-                  <button
-                    type="button"
-                    onClick={signOut}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-semibold text-white"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
+            <button
+              type="button"
+              onClick={saveContent}
+              disabled={isSaving || isLoading}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-4 text-sm font-semibold text-ink disabled:opacity-60"
+            >
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <div className="grid gap-3 sm:grid-cols-[8rem_1fr_1fr] lg:min-w-[38rem]">
-                  <select
-                    value={authMode}
-                    onChange={(event) =>
-                      setAuthMode(event.target.value as "signin" | "signup")
-                    }
-                    className="h-11 rounded-lg border border-white/10 bg-black/30 px-3 text-sm text-white outline-none"
-                  >
-                    <option value="signin">Sign in</option>
-                    <option value="signup">Sign up</option>
-                  </select>
-                  <input
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    type="email"
-                    placeholder="email"
-                    className="h-11 rounded-lg border border-white/10 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-slate-500"
-                  />
-                  <input
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    type="password"
-                    placeholder="password"
-                    className="h-11 rounded-lg border border-white/10 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-slate-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={signInWithGoogle}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-semibold text-white"
-                  >
-                    <Globe2 className="h-4 w-4" />
-                    Google
-                  </button>
-                  <button
-                    type="button"
-                    onClick={submitEmailPassword}
-                    disabled={isLoading || !email || !password}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-4 text-sm font-semibold text-ink disabled:opacity-60"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Mail className="h-4 w-4" />
-                    )}
-                    {authMode === "signin" ? "Continue" : "Create"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={sendMagicLink}
-                    disabled={isLoading || !email}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-semibold text-white disabled:opacity-60"
-                  >
-                    Magic link
-                  </button>
-                </div>
+                <Save className="h-4 w-4" />
               )}
-            </div>
+              Save Praveen Profile
+            </button>
           </div>
         </header>
 
@@ -770,12 +317,7 @@ export default function CmsPage() {
               <button
                 key={item.key}
                 type="button"
-                onClick={() => {
-                  if (item.key === "advanced") {
-                    setAdvancedJson(formatJson(content));
-                  }
-                  setActiveKey(item.key);
-                }}
+                onClick={() => setActiveKey(item.key)}
                 className={`mb-2 block w-full rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
                   activeKey === item.key
                     ? "bg-cyan-200 text-ink"
@@ -1098,111 +640,6 @@ export default function CmsPage() {
                   />
                 )}
 
-                {activeKey === "deploy" && (
-                  <div className="grid gap-5">
-                    <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                      <h2 className="text-xl font-semibold text-white">
-                        Portfolio
-                      </h2>
-                      <p className="mt-2 text-sm text-slate-300">
-                        {content.portfolio?.status ?? "template"} |{" "}
-                        {portfolioUrl || "Not published yet"}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={publishPortfolio}
-                        disabled={isSaving}
-                        className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-300 px-4 text-sm font-semibold text-ink disabled:opacity-60"
-                      >
-                        <Rocket className="h-4 w-4" />
-                        Make Portfolio
-                      </button>
-                    </article>
-
-                    <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                      <h2 className="text-xl font-semibold text-white">
-                        Custom domain
-                      </h2>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-                        <input
-                          value={domain}
-                          onChange={(event) => setDomain(event.target.value)}
-                          placeholder="example.com"
-                          className="h-11 rounded-lg border border-white/10 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-slate-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={addDomain}
-                          disabled={isSaving || !domain}
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-4 text-sm font-semibold text-ink disabled:opacity-60"
-                        >
-                          <Globe2 className="h-4 w-4" />
-                          Add domain
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={checkDomainStatus}
-                        disabled={isSaving || !content.portfolio?.custom_domain}
-                        className="mt-3 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-50"
-                      >
-                        Check status
-                      </button>
-                      <p className="mt-3 text-sm text-slate-300">
-                        {content.portfolio?.domain_status ?? "unconfigured"}
-                      </p>
-                    </article>
-
-                    <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                      <h2 className="text-xl font-semibold text-white">
-                        Resume import
-                      </h2>
-                      <label className="mt-4 inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-semibold text-white">
-                        {isParsingResume ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Upload className="h-4 w-4" />
-                        )}
-                        Upload resume
-                        <input
-                          type="file"
-                          accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                          className="hidden"
-                          onChange={(event) =>
-                            parseResume(event.target.files?.[0] ?? null)
-                          }
-                        />
-                      </label>
-                    </article>
-                  </div>
-                )}
-
-                {activeKey === "advanced" && (
-                  <div>
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-                      <button
-                        type="button"
-                        onClick={() => setAdvancedJson(formatJson(content))}
-                        className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200"
-                      >
-                        Refresh JSON
-                      </button>
-                      <button
-                        type="button"
-                        onClick={applyAdvancedJson}
-                        className="rounded-lg bg-cyan-200 px-3 py-2 text-xs font-semibold text-ink"
-                      >
-                        Apply JSON
-                      </button>
-                    </div>
-                    <textarea
-                      value={advancedJson}
-                      onChange={(event) => setAdvancedJson(event.target.value)}
-                      spellCheck={false}
-                      className="min-h-[34rem] w-full resize-y rounded-lg border border-white/10 bg-black/40 p-4 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-cyan-300/40"
-                    />
-                  </div>
-                )}
               </>
             )}
           </section>
